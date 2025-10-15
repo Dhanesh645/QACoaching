@@ -380,31 +380,6 @@
             transform: none;
         }
 
-        .download-report-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            margin: 10px;
-        }
-
-        .download-report-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-
-        .download-report-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .success-message {
             background-color: #d4edda;
             border: 1px solid #c3e6cb;
@@ -1178,7 +1153,7 @@
     </div>
 
     <script>
-        // QA Monitoring Tool JavaScript - Complete Fixed Version
+        // QA Monitoring Tool JavaScript - Complete Version
         class QAMonitoringTool {
             constructor() {
                 this.zeroToleranceFields = [
@@ -1282,10 +1257,7 @@
                 const radioButtons = document.querySelectorAll('input[type="radio"]');
                 radioButtons.forEach(radio => {
                     if (radio.checked) {
-                        const radioOption = radio.closest('.radio-option');
-                        if (radioOption) {
-                            radioOption.classList.add('selected');
-                        }
+                        radio.closest('.radio-option').classList.add('selected');
                     }
                 });
             }
@@ -1295,29 +1267,23 @@
                 const fieldName = radio.name;
                 const allOptionsInGroup = document.querySelectorAll(`input[name="${fieldName}"]`);
                 allOptionsInGroup.forEach(option => {
-                    const radioOption = option.closest('.radio-option');
-                    const attributeOption = option.closest('.attribute-option');
-                    if (radioOption) radioOption.classList.remove('selected');
-                    if (attributeOption) attributeOption.classList.remove('selected');
+                    option.closest('.radio-option').classList.remove('selected');
+                    option.closest('.attribute-option').classList.remove('selected');
                 });
                 
                 // Add selected class to the chosen option
                 if (radio.checked) {
-                    const radioOption = radio.closest('.radio-option');
-                    const attributeOption = radio.closest('.attribute-option');
-                    if (radioOption) radioOption.classList.add('selected');
-                    if (attributeOption) attributeOption.classList.add('selected');
+                    radio.closest('.radio-option').classList.add('selected');
+                    radio.closest('.attribute-option').classList.add('selected');
                 }
                 
                 // Handle zero tolerance visual feedback
                 if (this.zeroToleranceFields.includes(fieldName)) {
                     const attributeItem = radio.closest('.attribute-item');
-                    if (attributeItem) {
-                        if (radio.value === 'no') {
-                            attributeItem.classList.add('violation');
-                        } else {
-                            attributeItem.classList.remove('violation');
-                        }
+                    if (radio.value === 'no') {
+                        attributeItem.classList.add('violation');
+                    } else {
+                        attributeItem.classList.remove('violation');
                     }
                 }
             }
@@ -1349,30 +1315,20 @@
             
             getFieldScore(fieldName) {
                 const selectedRadio = document.querySelector(`input[name="${fieldName}"]:checked`);
-                if (!selectedRadio) {
-                    console.log(`No radio selected for ${fieldName}`);
-                    return 0;
-                }
+                if (!selectedRadio) return 0;
                 
                 const maxScore = this.maxScores[fieldName] || 0;
-                let score = 0;
                 
                 switch (selectedRadio.value) {
                     case 'yes':
-                        score = maxScore; // Full points for Yes
-                        break;
+                        return maxScore; // Full points
                     case 'no':
-                        score = 0; // Zero points for No
-                        break;
+                        return 0; // Zero points
                     case 'na':
-                        score = maxScore; // Full points for N/A (gets full credit)
-                        break;
+                        return maxScore; // Full points (N/A gets full credit)
                     default:
-                        score = 0;
+                        return 0;
                 }
-                
-                console.log(`Field: ${fieldName}, Selection: ${selectedRadio.value}, Max: ${maxScore}, Score: ${score}`);
-                return score;
             }
             
             calculateTotalScores() {
@@ -1652,6 +1608,7 @@
         .score-number { font-size: 36px; font-weight: bold; color: ${auditData.hasZeroToleranceViolation ? '#f44336' : auditData.percentage >= 90 ? '#4caf50' : auditData.percentage >= 80 ? '#ff9800' : '#f44336'}; }
         .section { margin: 25px 0; padding: 20px; border-radius: 8px; }
         .strengths { background-color: #e8f5e8; border-left: 4px solid #4caf50; }
+        .missed { background-color: #ffebee; border-left: 4px solid #f44336; }
         .opportunities { background-color: #fff3e0; border-left: 4px solid #ff9800; }
         .tips { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
         .section h3 { margin-top: 0; color: #333; }
@@ -1739,8 +1696,8 @@
                 <h3>📝 Your Response Required</h3>
                 <p>Please review this audit and let us know your response:</p>
                 <div class="cta-buttons">
-                    <a href="${window.location.origin}/audit-response.html?id=${auditData.auditId}&action=accept" class="cta-button accept-btn">✅ Accept Audit</a>
-                    <a href="${window.location.origin}/audit-response.html?id=${auditData.auditId}&action=dispute" class="cta-button dispute-btn">⚠️ Dispute Audit</a>
+                    <a href="${window.location.origin}/audit-response.html?id=${auditData.auditId}&action=accept&specialist=${encodeURIComponent(auditData.specialistName)}&auditor=${encodeURIComponent(auditData.auditorEmail)}" class="cta-button accept-btn">✅ Accept Audit</a>
+                    <a href="${window.location.origin}/audit-response.html?id=${auditData.auditId}&action=dispute&specialist=${encodeURIComponent(auditData.specialistName)}&auditor=${encodeURIComponent(auditData.auditorEmail)}" class="cta-button dispute-btn">⚠️ Dispute Audit</a>
                 </div>
                 <p><small><strong>Audit ID:</strong> ${auditData.auditId}</small></p>
                 <p><small>If you accept, we'll record your acknowledgment. If you dispute, you'll be able to provide comments explaining your concerns.</small></p>
