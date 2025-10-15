@@ -380,31 +380,6 @@
             transform: none;
         }
 
-        .download-report-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            margin: 10px;
-        }
-
-        .download-report-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-
-        .download-report-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .success-message {
             background-color: #d4edda;
             border: 1px solid #c3e6cb;
@@ -462,6 +437,38 @@
             <!-- Basic Information Section -->
             <section class="form-section">
                 <h2>Audit Information</h2>
+                
+                <div class="form-group">
+                    <label for="auditPurpose">Purpose of the Audit:</label>
+                    <select id="auditPurpose" name="auditPurpose" required>
+                        <option value="">Select audit purpose...</option>
+                        <option value="Regular QA check">Regular QA check</option>
+                        <option value="Escalation Insight">Escalation Insight</option>
+                        <option value="Customer Survey Score Check">Customer Survey Score Check</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="auditorName">Auditor Name:</label>
+                    <input 
+                        type="text" 
+                        id="auditorName" 
+                        name="auditorName" 
+                        placeholder="Enter your full name" 
+                        required 
+                    />
+                </div>
+                <div class="form-group">
+                    <label for="auditorEmail">Auditor Email:</label>
+                    <input 
+                        type="email" 
+                        id="auditorEmail" 
+                        name="auditorEmail" 
+                        placeholder="Enter your email address"
+                        required 
+                    />
+                </div>
+                
                 <div class="form-group">
                     <label for="specialistName">Specialist Name:</label>
                     <input 
@@ -510,6 +517,14 @@
                                 checked
                             />
                             <span class="radio-label">📧 Email Conversation</span>
+                        </label>
+                        <label class="radio-option">
+                            <input 
+                                type="radio" 
+                                name="interactionType" 
+                                value="chat" 
+                            />
+                            <span class="radio-label">💬 Chat Support</span>
                         </label>
                         <label class="radio-option">
                             <input 
@@ -1094,15 +1109,6 @@
                         placeholder="Identify specific areas where the specialist can improve and grow..." 
                     ></textarea>
                 </div>
-                <div class="coaching-field missed">
-                    <label for="missed">📋 Missed Opportunities:</label>
-                    <textarea 
-                        id="missed" 
-                        name="missed" 
-                        rows="4" 
-                        placeholder="Note any missed opportunities or actions that should have been taken..." 
-                    ></textarea>
-                </div>
                 <div class="coaching-field tips">
                     <label for="tips">💡 Coaching Tips & Recommendations:</label>
                     <textarea 
@@ -1126,7 +1132,7 @@
     </div>
 
     <script>
-        // QA Monitoring Tool JavaScript - Complete Fixed Version
+        // QA Monitoring Tool JavaScript - Complete Version
         class QAMonitoringTool {
             constructor() {
                 this.zeroToleranceFields = [
@@ -1230,10 +1236,7 @@
                 const radioButtons = document.querySelectorAll('input[type="radio"]');
                 radioButtons.forEach(radio => {
                     if (radio.checked) {
-                        const radioOption = radio.closest('.radio-option');
-                        if (radioOption) {
-                            radioOption.classList.add('selected');
-                        }
+                        radio.closest('.radio-option').classList.add('selected');
                     }
                 });
             }
@@ -1243,29 +1246,23 @@
                 const fieldName = radio.name;
                 const allOptionsInGroup = document.querySelectorAll(`input[name="${fieldName}"]`);
                 allOptionsInGroup.forEach(option => {
-                    const radioOption = option.closest('.radio-option');
-                    const attributeOption = option.closest('.attribute-option');
-                    if (radioOption) radioOption.classList.remove('selected');
-                    if (attributeOption) attributeOption.classList.remove('selected');
+                    option.closest('.radio-option').classList.remove('selected');
+                    option.closest('.attribute-option').classList.remove('selected');
                 });
                 
                 // Add selected class to the chosen option
                 if (radio.checked) {
-                    const radioOption = radio.closest('.radio-option');
-                    const attributeOption = radio.closest('.attribute-option');
-                    if (radioOption) radioOption.classList.add('selected');
-                    if (attributeOption) attributeOption.classList.add('selected');
+                    radio.closest('.radio-option').classList.add('selected');
+                    radio.closest('.attribute-option').classList.add('selected');
                 }
                 
                 // Handle zero tolerance visual feedback
                 if (this.zeroToleranceFields.includes(fieldName)) {
                     const attributeItem = radio.closest('.attribute-item');
-                    if (attributeItem) {
-                        if (radio.value === 'no') {
-                            attributeItem.classList.add('violation');
-                        } else {
-                            attributeItem.classList.remove('violation');
-                        }
+                    if (radio.value === 'no') {
+                        attributeItem.classList.add('violation');
+                    } else {
+                        attributeItem.classList.remove('violation');
                     }
                 }
             }
@@ -1297,30 +1294,20 @@
             
             getFieldScore(fieldName) {
                 const selectedRadio = document.querySelector(`input[name="${fieldName}"]:checked`);
-                if (!selectedRadio) {
-                    console.log(`No radio selected for ${fieldName}`);
-                    return 0;
-                }
+                if (!selectedRadio) return 0;
                 
                 const maxScore = this.maxScores[fieldName] || 0;
-                let score = 0;
                 
                 switch (selectedRadio.value) {
                     case 'yes':
-                        score = maxScore; // Full points for Yes
-                        break;
+                        return maxScore; // Full points
                     case 'no':
-                        score = 0; // Zero points for No
-                        break;
+                        return 0; // Zero points
                     case 'na':
-                        score = maxScore; // Full points for N/A (gets full credit)
-                        break;
+                        return maxScore; // Full points (N/A gets full credit)
                     default:
-                        score = 0;
+                        return 0;
                 }
-                
-                console.log(`Field: ${fieldName}, Selection: ${selectedRadio.value}, Max: ${maxScore}, Score: ${score}`);
-                return score;
             }
             
             calculateTotalScores() {
@@ -1423,6 +1410,9 @@
             
             validateForm() {
                 const requiredFields = [
+                    'auditPurpose',
+                    'auditorName',
+                    'auditorEmail',
                     'specialistName',
                     'specialistEmail',
                     'managerEmail', 
@@ -1446,7 +1436,7 @@
                 }
                 
                 // Validate email formats
-                const emailFields = ['specialistEmail', 'managerEmail', 'teamLeadEmail'];
+                const emailFields = ['auditorEmail', 'specialistEmail', 'managerEmail', 'teamLeadEmail'];
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 
                 for (const fieldName of emailFields) {
@@ -1659,11 +1649,6 @@
                 <p>${auditData.opportunities || 'No specific improvement areas identified in this audit.'}</p>
             </div>
             
-            <div class="section missed">
-                <h3>📋 Missed Opportunities</h3>
-                <p>${auditData.missed || 'No missed opportunities identified in this audit.'}</p>
-            </div>
-            
             <div class="section tips">
                 <h3>💡 Coaching Tips & Recommendations</h3>
                 <p>${auditData.tips || 'No specific coaching recommendations provided in this audit.'}</p>
@@ -1757,7 +1742,7 @@ Recipients:
                 
                 try {
                     // Send to Google Apps Script
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbzAmuaHHFdu_nrcVWyJWwYxCxS6qMluuAlTVpYtvS1T00RRt5r2OmT2VhaJRRrH9_Jc/exec', {
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbxA8geu0dLAy5-1R7w3d1QI3H9DKesC8kdTlDrSpvpJTqJl-KLnfOzi0Zfy0TrKLNA5/exec', {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {
@@ -1779,46 +1764,6 @@ Recipients:
                     // Re-enable button
                     finishButton.disabled = false;
                     finishButton.textContent = 'Finish Audit & Send Results';
-                }
-            }
-            
-            async downloadReport() {
-                // Validate form
-                if (!this.validateForm()) {
-                    return;
-                }
-                
-                // Collect audit data
-                const auditData = this.collectAuditData();
-                
-                // Disable the button and show loading state
-                const downloadButton = document.getElementById('downloadReport');
-                downloadButton.disabled = true;
-                downloadButton.textContent = 'Downloading...';
-                
-                try {
-                    // Send to Google Apps Script for sheet recording
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbzAmuaHHFdu_nrcVWyJWwYxCxS6qMluuAlTVpYtvS1T00RRt5r2OmT2VhaJRRrH9_Jc/exec', {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            auditData: auditData,
-                            action: 'download_report'
-                        })
-                    });
-
-                    alert('Report downloaded and data recorded in Google Sheets successfully!');
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error downloading report. Please try again.');
-                } finally {
-                    // Re-enable button
-                    downloadButton.disabled = false;
-                    downloadButton.textContent = 'Download Report';
                 }
             }
         }
