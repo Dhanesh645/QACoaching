@@ -287,8 +287,8 @@
                         responderName: responderName,
                         responderEmail: responderEmail,
                         comments: comments,
-                        specialistName: 'Specialist', // This should be extracted from email or passed via URL
-                        auditorEmail: 'auditor@example.com' // This should be extracted from the audit data
+                        specialistName: urlParams.get('specialist') || responderName,
+                        auditorEmail: urlParams.get('auditor') || ''
                     })
                 });
 
