@@ -380,6 +380,31 @@
             transform: none;
         }
 
+        .download-report-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            margin: 10px;
+        }
+
+        .download-report-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .download-report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .success-message {
             background-color: #d4edda;
             border: 1px solid #c3e6cb;
@@ -439,13 +464,34 @@
                 <h2>Audit Information</h2>
                 
                 <div class="form-group">
-                    <label for="auditPurpose">Purpose of the Audit:</label>
-                    <select id="auditPurpose" name="auditPurpose" required>
-                        <option value="">Select audit purpose...</option>
-                        <option value="Regular QA check">Regular QA check</option>
-                        <option value="Escalation Insight">Escalation Insight</option>
-                        <option value="Customer Survey Score Check">Customer Survey Score Check</option>
-                    </select>
+                    <label>Purpose of the Audit:</label>
+                    <div class="radio-options">
+                        <label class="radio-option">
+                            <input 
+                                type="radio" 
+                                name="auditPurpose" 
+                                value="Regular QA check" 
+                                required
+                            />
+                            <span class="radio-label">Regular QA check</span>
+                        </label>
+                        <label class="radio-option">
+                            <input 
+                                type="radio" 
+                                name="auditPurpose" 
+                                value="Escalation Insight" 
+                            />
+                            <span class="radio-label">Escalation Insight</span>
+                        </label>
+                        <label class="radio-option">
+                            <input 
+                                type="radio" 
+                                name="auditPurpose" 
+                                value="Customer Survey Score Check" 
+                            />
+                            <span class="radio-label">Customer Survey Score Check</span>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -1132,7 +1178,7 @@
     </div>
 
     <script>
-        // QA Monitoring Tool JavaScript - Complete Version
+        // QA Monitoring Tool JavaScript - Complete Fixed Version
         class QAMonitoringTool {
             constructor() {
                 this.zeroToleranceFields = [
@@ -1236,7 +1282,10 @@
                 const radioButtons = document.querySelectorAll('input[type="radio"]');
                 radioButtons.forEach(radio => {
                     if (radio.checked) {
-                        radio.closest('.radio-option').classList.add('selected');
+                        const radioOption = radio.closest('.radio-option');
+                        if (radioOption) {
+                            radioOption.classList.add('selected');
+                        }
                     }
                 });
             }
@@ -1246,23 +1295,29 @@
                 const fieldName = radio.name;
                 const allOptionsInGroup = document.querySelectorAll(`input[name="${fieldName}"]`);
                 allOptionsInGroup.forEach(option => {
-                    option.closest('.radio-option').classList.remove('selected');
-                    option.closest('.attribute-option').classList.remove('selected');
+                    const radioOption = option.closest('.radio-option');
+                    const attributeOption = option.closest('.attribute-option');
+                    if (radioOption) radioOption.classList.remove('selected');
+                    if (attributeOption) attributeOption.classList.remove('selected');
                 });
                 
                 // Add selected class to the chosen option
                 if (radio.checked) {
-                    radio.closest('.radio-option').classList.add('selected');
-                    radio.closest('.attribute-option').classList.add('selected');
+                    const radioOption = radio.closest('.radio-option');
+                    const attributeOption = radio.closest('.attribute-option');
+                    if (radioOption) radioOption.classList.add('selected');
+                    if (attributeOption) attributeOption.classList.add('selected');
                 }
                 
                 // Handle zero tolerance visual feedback
                 if (this.zeroToleranceFields.includes(fieldName)) {
                     const attributeItem = radio.closest('.attribute-item');
-                    if (radio.value === 'no') {
-                        attributeItem.classList.add('violation');
-                    } else {
-                        attributeItem.classList.remove('violation');
+                    if (attributeItem) {
+                        if (radio.value === 'no') {
+                            attributeItem.classList.add('violation');
+                        } else {
+                            attributeItem.classList.remove('violation');
+                        }
                     }
                 }
             }
@@ -1294,20 +1349,30 @@
             
             getFieldScore(fieldName) {
                 const selectedRadio = document.querySelector(`input[name="${fieldName}"]:checked`);
-                if (!selectedRadio) return 0;
+                if (!selectedRadio) {
+                    console.log(`No radio selected for ${fieldName}`);
+                    return 0;
+                }
                 
                 const maxScore = this.maxScores[fieldName] || 0;
+                let score = 0;
                 
                 switch (selectedRadio.value) {
                     case 'yes':
-                        return maxScore; // Full points
+                        score = maxScore; // Full points for Yes
+                        break;
                     case 'no':
-                        return 0; // Zero points
+                        score = 0; // Zero points for No
+                        break;
                     case 'na':
-                        return maxScore; // Full points (N/A gets full credit)
+                        score = maxScore; // Full points for N/A (gets full credit)
+                        break;
                     default:
-                        return 0;
+                        score = 0;
                 }
+                
+                console.log(`Field: ${fieldName}, Selection: ${selectedRadio.value}, Max: ${maxScore}, Score: ${score}`);
+                return score;
             }
             
             calculateTotalScores() {
@@ -1587,7 +1652,6 @@
         .score-number { font-size: 36px; font-weight: bold; color: ${auditData.hasZeroToleranceViolation ? '#f44336' : auditData.percentage >= 90 ? '#4caf50' : auditData.percentage >= 80 ? '#ff9800' : '#f44336'}; }
         .section { margin: 25px 0; padding: 20px; border-radius: 8px; }
         .strengths { background-color: #e8f5e8; border-left: 4px solid #4caf50; }
-        .missed { background-color: #ffebee; border-left: 4px solid #f44336; }
         .opportunities { background-color: #fff3e0; border-left: 4px solid #ff9800; }
         .tips { background-color: #e3f2fd; border-left: 4px solid #2196f3; }
         .section h3 { margin-top: 0; color: #333; }
@@ -1742,7 +1806,7 @@ Recipients:
                 
                 try {
                     // Send to Google Apps Script
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbxA8geu0dLAy5-1R7w3d1QI3H9DKesC8kdTlDrSpvpJTqJl-KLnfOzi0Zfy0TrKLNA5/exec', {
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbzAmuaHHFdu_nrcVWyJWwYxCxS6qMluuAlTVpYtvS1T00RRt5r2OmT2VhaJRRrH9_Jc/exec', {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {
@@ -1764,6 +1828,46 @@ Recipients:
                     // Re-enable button
                     finishButton.disabled = false;
                     finishButton.textContent = 'Finish Audit & Send Results';
+                }
+            }
+            
+            async downloadReport() {
+                // Validate form
+                if (!this.validateForm()) {
+                    return;
+                }
+                
+                // Collect audit data
+                const auditData = this.collectAuditData();
+                
+                // Disable the button and show loading state
+                const downloadButton = document.getElementById('downloadReport');
+                downloadButton.disabled = true;
+                downloadButton.textContent = 'Downloading...';
+                
+                try {
+                    // Send to Google Apps Script for sheet recording
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbzAmuaHHFdu_nrcVWyJWwYxCxS6qMluuAlTVpYtvS1T00RRt5r2OmT2VhaJRRrH9_Jc/exec', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            auditData: auditData,
+                            action: 'download_report'
+                        })
+                    });
+
+                    alert('Report downloaded and data recorded in Google Sheets successfully!');
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error downloading report. Please try again.');
+                } finally {
+                    // Re-enable button
+                    downloadButton.disabled = false;
+                    downloadButton.textContent = 'Download Report';
                 }
             }
         }
